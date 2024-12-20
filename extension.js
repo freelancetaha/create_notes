@@ -6,9 +6,8 @@ const path = require('path');
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-    console.log('✨ Spark Club extension is now active! 🚀');
+    console.log('✨ Mind Notes extension is now active! 🚀');
 
-    // 5A1DCvs1NpUG7jxOlnSG285D8nbqUq7WuD3OIfAkKlqLVTNB99DnJQQJ99ALACAAAAAAAAAAAAASAZDOmYe3
     // Command to ask for the user's name
     const addNameCommand = vscode.commands.registerCommand('notes.addName', async function () {
         const name = await vscode.window.showInputBox({
@@ -42,15 +41,25 @@ function activate(context) {
                         if (!fs.existsSync(userFolder)) {
                             fs.mkdirSync(userFolder, { recursive: true });
                         }
+
                         progress.report({ increment: 50, message: '✨ Opening workspace...' });
                         vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(userFolder));
-                        progress.report({ increment: 100, message: '🎉 Workspace is ready!' });
 
                         const welcomeFilePath = path.join(userFolder, "WELCOME.md");
                         if (!fs.existsSync(welcomeFilePath)) {
-                            const welcomeContent = `# 🌟 Welcome to your workspace, ${name}!\n\nThis is your personalized workspace. Feel free to create notes and manage your tasks.\n\n- 📄 Start by creating a new note using the command palette.\n- ✅ Stay organized with Task Lists.\n\nEnjoy your productivity journey! 🚀`;
+                            const welcomeContent = `# 🌟 Welcome to your workspace, ${name}!
+
+This is your personalized workspace. Feel free to create notes and manage your tasks.
+
+- 📄 Start by creating a new note using the command palette.
+- ✅ Stay organized with Task Lists.
+- 💡 Explore new templates for Bug Tracking and Code Snippets.
+
+Enjoy your productivity journey! 🚀`;
                             fs.writeFileSync(welcomeFilePath, welcomeContent);
                         }
+
+                        progress.report({ increment: 100, message: '🎉 Workspace is ready!' });
                     }
                 );
 
@@ -82,7 +91,7 @@ function activate(context) {
         }
 
         const noteTemplate = await vscode.window.showQuickPick(
-            ['📄 Blank Note', '📝 Meeting Notes', '✅ Task List'],
+            ['📄 Blank Note', '📝 Meeting Notes', '✅ Task List', '📅 Project Plan', '📖 Daily Journal', '🐞 Bug Tracker', '💻 Code Snippet Manager'],
             {
                 placeHolder: '🖋 Choose a note template to get started.',
                 canPickMany: false,
@@ -94,27 +103,60 @@ function activate(context) {
             return;
         }
 
-        let content = `# 📝 Hello, ${userName}!\n---\nStart writing your note below:\n`;
+        let content = `# 📝 Hello, ${userName}!
+---
+Start writing your note below:
+`;
         if (noteTemplate === '📝 Meeting Notes') {
             content += `\n## 🗓 Meeting Details\n- **Meeting Date:** \n- **Attendees:** \n- **Agenda:**\n  - \n\n### 📋 Notes\n- `;
         } else if (noteTemplate === '✅ Task List') {
             content += `\n## ✅ Tasks\n- [ ] Task 1\n- [ ] Task 2\n- [ ] Task 3`;
+        } else if (noteTemplate === '📅 Project Plan') {
+            content += `\n## 📅 Milestones\n- [ ] Milestone 1\n- [ ] Milestone 2\n- [ ] Milestone 3\n\n### 📊 Project Overview\n- `;
+        } else if (noteTemplate === '📖 Daily Journal') {
+            content += `\n## 📅 Date: \n### 📝 Thoughts\n- \n\n### 🎯 Goals for the Day\n- `;
+        } else if (noteTemplate === '🐞 Bug Tracker') {
+            content += `\n## 🐞 Bug Details\n- **Issue ID:** \n- **Description:** \n- **Priority:** \n\n### 🔧 Steps to Reproduce\n1. \n2. \n\n### ✅ Resolution Notes\n- `;
+        } else if (noteTemplate === '💻 Code Snippet Manager') {
+            content += `\n## 🖥 Code Snippet\n\`\`\`javascript\n// Your snippet here\n\`\`\`\n\n### 📜 Description\n- `;
         }
 
         const doc = await vscode.workspace.openTextDocument({ content });
         await vscode.window.showTextDocument(doc);
 
+        // Automatically open Markdown preview
+        vscode.commands.executeCommand('markdown.showPreviewToSide');
+
         vscode.window.showInformationMessage(`🎉 Your new ${noteTemplate} is ready!`);
     });
 
-    // Listen for file saves
+    // Command to save custom templates
+    const saveTemplateCommand = vscode.commands.registerCommand('notes.saveTemplate', async function () {
+        const templateName = await vscode.window.showInputBox({
+            placeHolder: "Enter a name for your template",
+            prompt: "Save your custom note template for future use."
+        });
+
+        if (templateName) {
+            const content = await vscode.window.activeTextEditor?.document.getText();
+            if (content) {
+                const templatePath = path.join(context.globalStorageUri.fsPath, `${templateName}.md`);
+                fs.writeFileSync(templatePath, content);
+                vscode.window.showInformationMessage(`✅ Template '${templateName}' saved successfully.`);
+            } else {
+                vscode.window.showWarningMessage('⚠️ No active content to save as a template.');
+            }
+        }
+    });
+
+    // File save notification
     const fileSaveWatcher = vscode.workspace.onDidSaveTextDocument((document) => {
-        if (document.fileName.endsWith('.txt')) {
+        if (document.fileName.endsWith('.txt') || document.fileName.endsWith('.md')) {
             vscode.window.showInformationMessage('💾 File saved successfully!');
         }
     });
 
-    context.subscriptions.push(addNameCommand, createNoteCommand, fileSaveWatcher);
+    context.subscriptions.push(addNameCommand, createNoteCommand, saveTemplateCommand, fileSaveWatcher);
 }
 
 // This method is called when your extension is deactivated

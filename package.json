@@ -1,12 +1,15 @@
 {
-  "pricing": "Free",
+  "pricing": "Trial",
   "name": "sparkclub",
   "displayName": "Spark Club",
   "description": "A note-taking and task management extension for programmers!",
-  "version": "0.0.2",
+  "version": "0.0.6",
   "publisher": "taha-ale",
   "engines": {
     "vscode": "^1.96.0"
+  },
+  "sponsor": {
+    "url": "https://github.com/freelancetaha/sparkclub"
   },
   "repository": {
     "type": "git",
@@ -58,5 +61,8 @@
     "vsce": "^1.103.1",
     "vscode-nls": "^5.2.0"
   },
-  "icon": "assets/logo.png"
+  "icon": "assets/logo.png",
+  "categories": [
+    "Programming Languages"
+  ]
 }
