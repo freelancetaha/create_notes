@@ -1,0 +1,8 @@
+{
+    "welcomeMessage": "🎉 ¡Bienvenido, {0}! Tu espacio de trabajo ha sido creado y abierto.",
+    "addTask": "📝 Ingresa una nueva tarea",
+    "listTasks": "📋 Lista de Tareas:",
+    "taskAdded": "✅ Tarea agregada: {0}",
+    "taskComplete": "✔️ Tarea marcada como completada: {0}"
+  }
+  
